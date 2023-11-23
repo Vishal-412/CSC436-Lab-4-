@@ -1,0 +1,73 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "portal",
+      "content": "Some content",
+      "author": "paul"
+    },
+    {
+      "title": "My New Post",
+      "content": "Web APllication",
+      "author": "Vishal",
+      "id": 2
+    },
+    {
+      "title": "My New Post",
+      "content": "Web APllication",
+      "author": "Vishal",
+      "id": 3
+    },
+    {
+      "title": "My New Post",
+      "content": "Web APllication",
+      "author": "Vishal",
+      "id": 4
+    },
+    {
+      "title": "My New Post",
+      "content": "Web APllication",
+      "author": "Vishal",
+      "id": 5
+    }
+  ],
+  "users": [
+    {
+      "email": "vish63930@gmail.com",
+      "password": "$2a$10$sLn4XNravtAmLn6E.nLRyOYGVDZQ8XIC0Ek0ZlEH3sD87RBs/Y4hu",
+      "id": 1
+    }
+  ],
+  "themes": [
+    {
+      "id": 1,
+      "primaryColor": "deepskyblue",
+      "secondaryColor": "coral"
+    },
+    {
+      "primaryColor": "red",
+      "secondaryColor": "blue",
+      "id": 2
+    },
+    {
+      "primaryColor": "red",
+      "secondaryColor": "blue",
+      "id": 3
+    },
+    {
+      "primaryColor": "red",
+      "secondaryColor": "blue",
+      "id": 4
+    },
+    {
+      "primaryColor": "red",
+      "secondaryColor": "blue",
+      "id": 5
+    },
+    {
+      "primaryColor": "red",
+      "secondaryColor": "blue",
+      "id": 6
+    }
+  ]
+}
