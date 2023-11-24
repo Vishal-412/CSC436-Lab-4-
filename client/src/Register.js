@@ -1,82 +1,91 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useResource } from "react-request-hook";
-// Register component definition
-export default function Register({ dispatch }) {
-  // Initial form data state
-  const initialFormData = {
-email: "",
-password: "",
-passwordRepeat: "",
-};
-  // State to manage form data
-const [formData, setFormData] = useState(initialFormData);
-// Resource hook for making a registration request
-const [register, registerRequest] = useResource(({ email, password }) => ({
-url: "/register",            // API endpoint for registration
-method: "post",
-data: { email, password },   // Request data (email and password)
-}));
-  // State to track registration success
-const [registrationSuccess, setRegistrationSuccess] = useState(false);
-// Effect to handle successful registration and update component state
-useEffect(() => {
-if (register && register.data) {
-dispatch({ type: "REGISTER", email: register.data.email });
-setRegistrationSuccess(true);
- }
-}, [register, dispatch]);
-  // Effect to clear form data and reset registration success after a delay
-useEffect(() => {
-if (registrationSuccess) {
-const timer = setTimeout(() => {
-setRegistrationSuccess(false);
-setFormData(initialFormData); // Clear form values
-}, 3000);
-return () => clearTimeout(timer);
-}
-}, [registrationSuccess, setFormData]);
-  // Event handler for form input changes
-function handleChange(evt) {
-const { name, value } = evt.target;
-setFormData((prevData) => ({
-...prevData,
-[name]: value,
- }));
- }
-  // Event handler for registration form submission
-function handleRegister() {
-const { email, password } = formData;
-registerRequest({ email, password });
+
+export default function Register({ dispatchUser }) {
+  const [status, setStatus] = useState("");
+  const [user, register] = useResource((username, password) => ({
+    url: "/auth/register",
+    method: "post",
+    data: { username, password, passwordConfirmation: password },
+  }));
+
+  // useEffect(() => {
+  //   if (user && user.data) {
+  //     dispatchUser({ type: "REGISTER", username: user.data.user.email });
+  //   }
+  // }, [user, dispatchUser]);
+
+  useEffect(() => {
+    if (user && user.isLoading === false && (user.data || user.error)) {
+      if (user.error) {
+        setStatus("Registration failed, please try again later.");
+      } else {
+        setStatus("Registration successful. You may now login.");
+      }
+    }
+  }, [user]);
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordRepeat, setPasswordRepeat] = useState("");
+
+  function handleUsername(evt) {
+    setUsername(evt.target.value);
   }
-  // JSX for the registration form and success message
-return (
-<div>
-<form onSubmit={(e) => { e.preventDefault(); handleRegister(); }}
->
-{/* Email input field */}
-<label htmlFor="register-email">Email:</label>
-<input type="text" name="email" id="register-email" value={formData.email} onChange={handleChange} />
-{/* Password input field */}
-<label htmlFor="register-password">Password:</label>
-<input type="password" name="password" id="register-password" value={formData.password} onChange={handleChange}/>
-{/* Repeat password input field */}
-<label htmlFor="register-password-repeat">Repeat password:</label>
-<input type="password" name="passwordRepeat" id="register-password-repeat" value={formData.passwordRepeat} onChange={handleChange}/>
-{/* Submit button */}
-<input type="submit" value="Register" disabled={
-formData.email.length === 0 ||
-formData.password.length === 0 ||
-formData.password !== formData.passwordRepeat
-}
-/>
-</form>
-{/* Display success message */}
-{registrationSuccess && (
-<div>
-User created ! Redirecting ...
-</div>
-)}
-</div>
+  function handlePassword(evt) {
+    setPassword(evt.target.value);
+  }
+  function handlePasswordRepeat(evt) {
+    setPasswordRepeat(evt.target.value);
+  }
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        // setUser(username);
+        register(username, password);
+        ///dispatchUser({ type: "REGISTER", username });
+      }}
+    >
+      <label htmlFor="register-username">Username:</label>
+      <input
+        type="text"
+        name="register-username"
+        id="register-username"
+        value={username}
+        onChange={handleUsername}
+      />
+
+      <label htmlFor="register-password">Password:</label>
+      <input
+        type="password"
+        name="register-password"
+        id="register-password"
+        value={password}
+        onChange={handlePassword}
+      />
+
+      <label htmlFor="register-password-repeat">Repeat password:</label>
+      <input
+        type="password"
+        name="register-password-repeat"
+        id="register-password-repeat"
+        value={passwordRepeat}
+        onChange={handlePasswordRepeat}
+      />
+
+      <input
+        type="submit"
+        value="Register"
+        disabled={
+          username.length === 0 ||
+          password.length === 0 ||
+          password !== passwordRepeat
+        }
+      />
+      {status && <p>{status}</p>}
+    </form>
   );
 }
     

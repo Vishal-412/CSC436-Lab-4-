@@ -1,17 +1,12 @@
-// Import necessary dependencies from React
-import { useEffect, useReducer } from "react";
-// Import components and contexts
+import React, { useEffect, useReducer } from "react";
 import CreateToDo from "./CreateToDo";
 import { StateContext } from "./contexts";
 import ToDoList from "./ToDoList";
 import UserBar from "./Userbar";
-// Import the reducer function
-import appReducer from "./reducers";
-// Import the useResource hook for making API requests
 import { useResource } from "react-request-hook";
-// Import styles
+import appReducer from "./reducers";
 import "./App.css";
-// Define the main App component
+
 function App() {
   // Initial data for posts
   const initialPosts = [
@@ -19,40 +14,74 @@ function App() {
     { title: "React", content: "Used for frontend", author: "Vishal", dateCreated: new Date().toISOString() },
     { title: "Webapplications", content: "Frontend + Backend", author: "Vishal", dateCreated: new Date().toISOString() }
   ];
-  // Use the useResource hook to fetch todos
+
+  // Hook to get todo data from the server
   const [todoData, getTodos] = useResource(() => ({
     url: "/todolist",
     method: "get",
   }));
-  // Fetch todos on component mount
+
+  // Fetch todos when component mounts or when todos change
   useEffect(getTodos, [getTodos]);
-  // Use the useReducer hook to manage state with the appReducer function
+
+  // State and reducer for managing application state
   const [state, dispatch] = useReducer(appReducer, {
     user: "",
-    todos: [], // Initialize with an empty array since todos will be fetched dynamically
+    todos: [],
   });
-  // Use useEffect to update state with fetched todos
+
+  // Update state with todos from the server
   useEffect(() => {
-    // Check if todoData.data exists and is an array
     if (Array.isArray(todoData.data)) {
-      // Dispatch action to set todos in the state
       dispatch({ type: "SET_TODOS", todos: todoData.data });
     }
   }, [todoData]);
-  // Render the main component
+
+  // Hook to get posts data from the server
+  const [postsResponse, getPosts] = useResource(() => ({
+    url: "/post",
+    method: "get",
+    headers: { Authorization: `${state?.user?.access_token}` },
+  }));
+
+  // Fetch posts when user access token changes
+  useEffect(() => {
+    getPosts();
+  }, [state?.user?.access_token]);
+
+  // Update state with fetched posts
+  useEffect(() => {
+    if (
+      postsResponse &&
+      postsResponse.isLoading === false &&
+      postsResponse.data
+    ) {
+      dispatch({
+        type: "FETCH_POSTS",
+        posts: postsResponse.data.reverse(),
+      });
+    }
+  }, [postsResponse]);
+
+  // Update document title based on user information
+  useEffect(() => {
+    if (state.user) {
+      document.title = `${state.user.username}'s Blog`;
+    } else {
+      document.title = "Blog";
+    }
+  }, [state.user]);
+
+  // Render the application
   return (
-    // Provide the state and dispatch functions to components using StateContext.Provider
     <StateContext.Provider value={{ state, dispatch }}>
-<div className="app-container">
-{/* Render the UserBar component */}
-<UserBar className="user-bar" />
- {/* Render the CreateToDo component */}
-<CreateToDo className="create-post" />
-{/* Render the ToDoList component */}
-<ToDoList />
-</div>
-</StateContext.Provider>
+      <div className="app-container">
+        <UserBar className="user-bar" />
+        <CreateToDo className="create-post" />
+        <ToDoList />
+      </div>
+    </StateContext.Provider>
   );
 }
-// Export the App component as the default export
+
 export default App;
